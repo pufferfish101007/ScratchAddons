@@ -2,22 +2,15 @@ export default async function ({ addon }) {
   var script = document.createElement('script'); 
   script.src="//cdn.jsdelivr.net/npm/eruda"; 
   
-  let accountNavDropdownButton = document.querySelector(".account-nsv > a"); 
+  let accountNavDropdownButton = document.querySelector("[class*=account-nav] > a"); 
   let signOutButton = document.querySelector(".account-nav > li.divider > a");
   // hopefully these are the only anchor elements that aren't proper links because react breaks stuff on www
-  // it doesn't work anyway
   
   // adapted from https://github.com/DerDer56/defresh/blob/master/defresh.js
 var d = document,
   x,
-  ActiveXObject,
-  p = {};
-window.addEventListener("keyup", function(e) {
-  delete p[e.key];
-});
-window.addEventListener("keydown", function(e) {
-  p[e.key] = true;
-});  
+  ActiveXObject;
+
 function defresh(r, a) {
   alert(r + "\n" + a);
   if (window.XMLHttpRequest && window.history) {
@@ -26,7 +19,7 @@ function defresh(r, a) {
   x.onreadystatechange = function() {
     if (
       this.readyState == 4 &&
-      r != window.location.pathame
+      new URL(r).pathname != window.location.pathame
     ) {
       if (a.toLowerCase() == "push") {
         window.history.pushState({ page: r }, "", r);
@@ -36,8 +29,8 @@ function defresh(r, a) {
       }
       o(this.responseText);
     }
-    if (
-      (this.readyState == 4 && this.responseText.indexOf("defresh.js") < 0) ||
+    else if (
+      this.readyState == 4 ||
       !window.XMLHttpRequest ||
       !window.history
     ) {
@@ -60,7 +53,7 @@ function defresh(r, a) {
       d.close();
     }
   };
-  x.open("GET", r + "#" + Date.now(), true);
+  x.open("GET", r, true);
   x.send();
 }
 window.addEventListener("popstate", () => {
@@ -85,9 +78,9 @@ while (true) {
       let href = l.href;
       l.addEventListener("click",  function(e) {
         if (
-          p.Control != true &&
-          p.Shift != true &&
-          p.Meta != true
+          e.ctrlKey != true &&
+          e.shiftKey != true &&
+          e.metaKey != true
         ) {
           e.preventDefault();
           defresh(href, "push");

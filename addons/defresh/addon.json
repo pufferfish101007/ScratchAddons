@@ -1,0 +1,19 @@
+{
+  "name": "Faster loading",
+  "description": "Makes pages load twice as fast on average.",
+  "credits": [
+    {
+      "name": "pufferfish101007",
+      "link": "https://scratch.mit.edu/users/pufferfish101007"
+    }
+  ],
+  "userscripts": [
+    {
+      "url": "userscript.js",
+      "matches": ["https://scratch.mit.edu/*"]
+    }
+  ],
+  "tags": ["beta", "website"],
+  "enabledByDefault": true,
+  "l10n": true
+}

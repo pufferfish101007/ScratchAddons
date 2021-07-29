@@ -577,7 +577,7 @@ export default async function ({ addon, global, console, msg }) {
       block.setFieldValue(opcodeData, "VALUE");
       return;
     }
-    
+
     if (opcodeData.opcode === "noop") {
       return;
     }
@@ -618,7 +618,7 @@ export default async function ({ addon, global, console, msg }) {
     }
 
     const pasteSeparately = [];
-    
+
     let remap;
     // Apply input remappings.
     if (mode === "custom") {
@@ -710,7 +710,7 @@ export default async function ({ addon, global, console, msg }) {
     if (addon.settings.get("border")) {
       addBorderToContextMenuItem = options.length;
     }
-    
+
     const allowNoop = addon.settings.get("noop");
 
     if (this._originalCustomContextMenu) {
@@ -733,30 +733,30 @@ export default async function ({ addon, global, console, msg }) {
     }
     if (addon.settings.get("custom")) {
       if (this.type === "argument_reporter_boolean") {
-        Object.keys(boolArgs).forEach(boolArg => {
+        Object.keys(boolArgs).forEach((boolArg) => {
           if (boolArg === this.getFieldValue("VALUE") && !allowNoop) return;
           options.push({
             enabled: true,
             text: boolArg,
-            callback: menuCallbackFactory(this, boolArg, "arg")
+            callback: menuCallbackFactory(this, boolArg, "arg"),
           });
         });
       } else if (this.type === "argument_reporter_string_number") {
-        Object.keys(stringArgs).forEach(stringArg => {
+        Object.keys(stringArgs).forEach((stringArg) => {
           if (stringArg === this.getFieldValue("VALUE") && !allowNoop) return;
           options.push({
             enabled: true,
             text: stringArg,
-            callback: menuCallbackFactory(this, stringArg, "arg")
+            callback: menuCallbackFactory(this, stringArg, "arg"),
           });
         });
       } else if (this.type === "procedures_call") {
-        Object.keys(customBlocks).forEach(customBlock => {
+        Object.keys(customBlocks).forEach((customBlock) => {
           if (customBlock === this.getProcCode() && !allowNoop) return;
           options.push({
             enabled: true,
             text: customBlock,
-            callback: menuCallbackFactory(this, customBlock, "custom")
+            callback: menuCallbackFactory(this, customBlock, "custom"),
           });
         });
       }
@@ -765,7 +765,14 @@ export default async function ({ addon, global, console, msg }) {
 
   const injectCustomContextMenu = (block) => {
     const type = block.type;
-    if (!(Object.prototype.hasOwnProperty.call(blockSwitches, type) || type === "procedures_call" || type === "argument_reporter_boolean" || type === "argument_reporter_string_number")) {
+    if (
+      !(
+        Object.prototype.hasOwnProperty.call(blockSwitches, type) ||
+        type === "procedures_call" ||
+        type === "argument_reporter_boolean" ||
+        type === "argument_reporter_string_number"
+      )
+    ) {
       return;
     }
 
@@ -792,31 +799,33 @@ export default async function ({ addon, global, console, msg }) {
         injectCustomContextMenu(block);
       }
     } else if (change.type === "change" && change.element === "mutation") {
-        getCustomBlocks();
+      getCustomBlocks();
     }
   };
-  
+
   const getCustomBlocks = () => {
     customBlocks = {};
     boolArgs = {};
     stringArgs = {};
     const target = vm.editingTarget;
     Object.entries(target.blocks._blocks)
-    .filter(([,block]) => block.opcode === "procedures_prototype").forEach(
-      ([id, block]) => addCustomBlock(id, block));
+      .filter(([, block]) => block.opcode === "procedures_prototype")
+      .forEach(([id, block]) => addCustomBlock(id, block));
   };
-  
+
   const addCustomBlock = (id, block) => {
-    let { mutation: { proccode, argumentids, argumentnames, argumentdefaults, warp }} = block;
+    let {
+      mutation: { proccode, argumentids, argumentnames, argumentdefaults, warp },
+    } = block;
     let [ids, names, defaults] = [argumentids, argumentnames, argumentdefaults].map(JSON.parse);
     customBlocks[proccode] = {
       argumentids,
       argumentnames,
       argumentdefaults,
       warp,
-      ids, 
+      ids,
       names,
-      defaults
+      defaults,
     };
     for (let i = 0; i < ids.length; i++) {
       if (!defaults[i]) {
@@ -825,7 +834,7 @@ export default async function ({ addon, global, console, msg }) {
         boolArgs[names[i]] = ids[i];
       }
     }
-  }
+  };
 
   const mutationObserverCallback = (mutations) => {
     if (addon.self.disabled) return;

@@ -625,10 +625,7 @@ export default async function ({ addon, global, console, msg }) {
       remap = {};
       let oldIds = customBlocks[block.getProcCode()].ids;
       for (let i = 0; i < oldIds.length; i++) {
-        if (!ids[i] || (
-            oldDefaults[i] === ""
-            && defaults[i] === "false"
-          )) {
+        if (!ids[i] || (oldDefaults[i] === "" && defaults[i] === "false")) {
           remap[oldIds[i]] = "split";
         } else {
           remap[oldIds[i]] = ids[i];

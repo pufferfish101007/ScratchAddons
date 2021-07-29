@@ -2,6 +2,10 @@ import blockToDom from "./blockToDom.js";
 
 export default async function ({ addon, global, console, msg }) {
   await addon.tab.traps.getBlockly();
+  const vm = addon.tab.traps.vm;
+  let customBlocks = {};
+  let boolArgs = {};
+  let stringArgs = {};
 
   const blockSwitches = {};
 
@@ -568,7 +572,12 @@ export default async function ({ addon, global, console, msg }) {
     return result;
   };
 
-  const menuCallbackFactory = (block, opcodeData) => () => {
+  const menuCallbackFactory = (block, opcodeData, mode) => () => {
+    if (mode === "arg") {
+      block.setFieldValue(opcodeData, "VALUE");
+      return;
+    }
+    
     if (opcodeData.opcode === "noop") {
       return;
     }
@@ -577,8 +586,19 @@ export default async function ({ addon, global, console, msg }) {
 
     // Make a copy of the block with the proper type set.
     // It doesn't seem to be possible to change a Block's type after it's created, so we'll just make a new block instead.
+    let argumentids, argumentnames, argumentdefaults, warp, ids, names, defaults;
     const xml = blockToDom(block);
-    xml.setAttribute("type", opcodeData.opcode);
+    if (mode === "custom") {
+      let mutation = xml.querySelector("mutation");
+      ({ argumentids, argumentnames, argumentdefaults, warp, ids, names, defaults } = customBlocks[opcodeData]);
+      mutation.setAttribute("proccode", opcodeData);
+      mutation.setAttribute("argumentids", argumentids);
+      mutation.setAttribute("argumentnames", argumentnames);
+      mutation.setAttribute("argumentdefaults", argumentdefaults);
+      mutation.setAttribute("warp", warp);
+    } else {
+      xml.setAttribute("type", opcodeData.opcode);
+    }
 
     const id = block.id;
     const parent = block.getParent();
@@ -598,11 +618,26 @@ export default async function ({ addon, global, console, msg }) {
     }
 
     const pasteSeparately = [];
+    
+    let remap;
     // Apply input remappings.
-    if (opcodeData.remap) {
+    if (mode === "custom") {
+      remap = {};
+      let oldIds = customBlocks[block.getProcCode()].ids;
+      for (let i = 0; i < oldIds.length; i++) {
+        if (!ids[i]) {
+          remap[oldIds[i]] = "split";
+        } else {
+          remap[oldIds[i]] = ids[i];
+        }
+      }
+    } else {
+      remap = opcodeData.remap;
+    }
+    if (remap) {
       for (const child of Array.from(xml.children)) {
         const oldName = child.getAttribute("name");
-        const newName = opcodeData.remap[oldName];
+        const newName = remap[oldName];
         if (newName) {
           if (newName === "split") {
             // This input will be split off into its own script.
@@ -675,15 +710,17 @@ export default async function ({ addon, global, console, msg }) {
     if (addon.settings.get("border")) {
       addBorderToContextMenuItem = options.length;
     }
+    
+    const allowNoop = addon.settings.get("noop");
 
     if (this._originalCustomContextMenu) {
       this._originalCustomContextMenu.call(this, options);
     }
 
-    const switches = blockSwitches[this.type];
+    const switches = blockSwitches[this.type] || [];
     for (const opcodeData of switches) {
       const isNoop = opcodeData.opcode === "noop";
-      if (isNoop && !addon.settings.get("noop")) {
+      if (isNoop && !allowNoop) {
         continue;
       }
       const translationOpcode = isNoop ? this.type : opcodeData.opcode;
@@ -691,14 +728,44 @@ export default async function ({ addon, global, console, msg }) {
       options.push({
         enabled: true,
         text: translation,
-        callback: menuCallbackFactory(this, opcodeData),
+        callback: menuCallbackFactory(this, opcodeData, "native"),
       });
+    }
+    if (addon.settings.get("custom")) {
+      if (this.type === "argument_reporter_boolean") {
+        Object.keys(boolArgs).forEach(boolArg => {
+          if (boolArg === this.getFieldValue("VALUE") && !allowNoop) return;
+          options.push({
+            enabled: true,
+            text: boolArg,
+            callback: menuCallbackFactory(this, boolArg, "arg")
+          });
+        });
+      } else if (this.type === "argument_reporter_string_number") {
+        Object.keys(stringArgs).forEach(stringArg => {
+          if (stringArg === this.getFieldValue("VALUE") && !allowNoop) return;
+          options.push({
+            enabled: true,
+            text: stringArg,
+            callback: menuCallbackFactory(this, stringArg, "arg")
+          });
+        });
+      } else if (this.type === "procedures_call") {
+        Object.keys(customBlocks).forEach(customBlock => {
+          if (customBlock === this.getProcCode() && !allowNoop) return;
+          options.push({
+            enabled: true,
+            text: customBlock,
+            callback: menuCallbackFactory(this, customBlock, "custom")
+          });
+        });
+      }
     }
   };
 
   const injectCustomContextMenu = (block) => {
     const type = block.type;
-    if (!Object.prototype.hasOwnProperty.call(blockSwitches, type)) {
+    if (!(Object.prototype.hasOwnProperty.call(blockSwitches, type) || type === "procedures_call" || type === "argument_reporter_boolean" || type === "argument_reporter_string_number")) {
       return;
     }
 
@@ -715,16 +782,50 @@ export default async function ({ addon, global, console, msg }) {
   };
 
   const changeListener = (change) => {
-    if (change.type !== "create") {
-      return;
-    }
-
-    for (const id of change.ids) {
-      const block = Blockly.getMainWorkspace().getBlockById(id);
-      if (!block) continue;
-      injectCustomContextMenu(block);
+    if (change.type === "create") {
+      for (const id of change.ids) {
+        const block = Blockly.getMainWorkspace().getBlockById(id);
+        if (!block) continue;
+        if (block.type === "procedures_prototype") {
+          getCustomBlocks();
+        }
+        injectCustomContextMenu(block);
+      }
+    } else if (change.type === "change" && change.element === "mutation") {
+        getCustomBlocks();
     }
   };
+  
+  const getCustomBlocks = () => {
+    customBlocks = {};
+    boolArgs = {};
+    stringArgs = {};
+    const target = vm.editingTarget;
+    Object.entries(target.blocks._blocks)
+    .filter(([,block]) => block.opcode === "procedures_prototype").forEach(
+      ([id, block]) => addCustomBlock(id, block));
+  };
+  
+  const addCustomBlock = (id, block) => {
+    let { mutation: { proccode, argumentids, argumentnames, argumentdefaults, warp }} = block;
+    let [ids, names, defaults] = [argumentids, argumentnames, argumentdefaults].map(JSON.parse);
+    customBlocks[proccode] = {
+      argumentids,
+      argumentnames,
+      argumentdefaults,
+      warp,
+      ids, 
+      names,
+      defaults
+    };
+    for (let i = 0; i < ids.length; i++) {
+      if (!defaults[i]) {
+        stringArgs[names[i]] = ids[i];
+      } else {
+        boolArgs[names[i]] = ids[i];
+      }
+    }
+  }
 
   const mutationObserverCallback = (mutations) => {
     if (addon.self.disabled) return;
@@ -763,6 +864,7 @@ export default async function ({ addon, global, console, msg }) {
         setTimeout(inject);
       });
     }
+    getCustomBlocks();
   };
 
   const mutationObserver = new MutationObserver(mutationObserverCallback);

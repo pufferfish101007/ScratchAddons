@@ -7,6 +7,8 @@ export default async function ({ addon, global, console }) {
       !this.flyout_ &&
       !this.shouldDuplicateOnDrag_ &&
       this.targetBlock_.type !== "procedures_definition" &&
+      this.targetBlock_.type !== "argument_reporter_boolean" &&
+      this.targetBlock_.type !== "argument_reporter_string_number" &&
       this.mostRecentEvent_.altKey &&
       !addon.self.disabled
     ) {

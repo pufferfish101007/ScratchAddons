@@ -41,7 +41,7 @@ function injectPrototype() {
           }
         }
       };
-    
+
       const originalToJson = onceMap.vm.constructor.prototype.toJSON;
       onceMap.vm.constructor.prototype.toJSON = function (optTargetId) {
         const json = JSON.parse(originalToJson.call(this, optTargetId));
@@ -54,37 +54,40 @@ function injectPrototype() {
         }
         return JSON.stringify(json);
       };
-      
+
       const cleanJsonImport = (json) => {
-        console.log('cleanJsonImport')
+        console.log("cleanJsonImport");
         for (const blockid in json.blocks || {}) {
           if (json.blocks[blockid].opcode === "procedures_prototype") {
-            console.log('procedures_prototype')
+            console.log("procedures_prototype");
             if (json.blocks[blockid].mutation.shape === "reporter") {
               json.blocks[blockid].opcode = "procedures_prototype_reporter";
-            
-              console.log('procedures_prototype_reporter')
+
+              console.log("procedures_prototype_reporter");
             } else if (json.blocks[blockid].mutation.shape === "boolean") {
               json.blocks[blockid].opcode = "procedures_prototype_boolean";
-              console.log('procedures_prototype_boolean')
+              console.log("procedures_prototype_boolean");
             }
-          } else if (json.blocks[blockid].opcode === "procedures_definition" && json.blocks[blockid].mutation?.shape === "reporter") {
+          } else if (
+            json.blocks[blockid].opcode === "procedures_definition" &&
+            json.blocks[blockid].mutation?.shape === "reporter"
+          ) {
             json.blocks[blockid].opcode = "procedures_definition_reporter";
-            console.log('procedures_definition_reporter')
+            console.log("procedures_definition_reporter");
           }
         }
-      }
-      
+      };
+
       const originalDeserializeProject = onceMap.vm.constructor.prototype.deserializeProject;
       onceMap.vm.constructor.prototype.deserializeProject = function (projectJSON, zip) {
         // despite scratch documenting this functions firat parameter as being a string, it seems to actually be an object, and doesn't work if it's a string. Bizarre.
         let json = typeof projectJSON === "string" ? JSON.parse(projectJSON) : projectJSON;
-        console.log(json)
+        console.log(json);
         for (const target of json.targets || []) {
           cleanJsonImport(target);
         }
         return originalDeserializeProject.call(this, json, zip);
-      }
+      };
       // After finding the VM, return to previous Function.prototype.bind
       Function.prototype.bind = oldBind;
       return oldBind.apply(this, args);

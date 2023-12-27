@@ -185,7 +185,11 @@ export default async function ({ addon, msg, console }) {
       const myBlocksCat = toolboxXML.querySelector('category[custom="PROCEDURE"]');
       myBlocksCat.removeAttribute("custom");
       const myBlocks = [];
-      for (const blockid of blocks._scripts.filter((bid) => blocks._blocks[bid].opcode === "procedures_definition_reporter" || blocks._blocks[bid].opcode === "procedures_definition")) {
+      for (const blockid of blocks._scripts.filter(
+        (bid) =>
+          blocks._blocks[bid].opcode === "procedures_definition_reporter" ||
+          blocks._blocks[bid].opcode === "procedures_definition"
+      )) {
         const blockEl = toolboxXML.createElement("block");
         const definitionBlock = blocks._getCustomBlockInternal(blocks._blocks[blockid]);
         blockEl.setAttribute("type", "procedures_call" + definitionBlock.opcode.substr("procedures_prototype".length));
@@ -195,15 +199,16 @@ export default async function ({ addon, msg, console }) {
         const argids = JSON.parse(mutation.argumentids);
         const argdefaults = JSON.parse(mutation.argumentdefaults);
         for (let i = 0; i < argids.length; i++) {
-          if (argdefaults[i] === "") { // is there a better way to determine if this argument is a string/number?
+          if (argdefaults[i] === "") {
+            // is there a better way to determine if this argument is a string/number?
             blockEl.innerHTML += `<value name="${encodeXML(argids[i])}">
               <shadow type="text">
                 <field name="TEXT"></field>
               </shadow>
-            </value>`
+            </value>`;
           }
         }
-        myBlocks.push(blockEl)
+        myBlocks.push(blockEl);
       }
       myBlocks.sort((a, b) => {
         const procA = a.firstChild.getAttribute("proccode");
@@ -218,7 +223,11 @@ export default async function ({ addon, msg, console }) {
       const newBlockButton = toolboxXML.createElement("button");
       newBlockButton.setAttribute("text", ScratchBlocks.Msg.NEW_PROCEDURE);
       newBlockButton.setAttribute("callbackKey", "CREATE_PROCEDURE");
-      addon.tab.traps.getWorkspace().registerButtonCallback("CREATE_PROCEDURE", () => ScratchBlocks.Procedures.createProcedureDefCallback_(addon.tab.traps.getWorkspace()));
+      addon.tab.traps
+        .getWorkspace()
+        .registerButtonCallback("CREATE_PROCEDURE", () =>
+          ScratchBlocks.Procedures.createProcedureDefCallback_(addon.tab.traps.getWorkspace())
+        );
       myBlocksCat.appendChild(newBlockButton);
       addon.tab.redux.dispatch({
         type: UPDATE_TOOLBOX_ACTION,

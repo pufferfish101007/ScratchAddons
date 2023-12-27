@@ -78,17 +78,17 @@ export default async function ({ addon, msg, console }) {
     createArgumentReporter_: ScratchBlocks.ScratchBlocks.ProcedureUtils.createArgumentReporter_,
     updateArgumentReporterNames_: ScratchBlocks.ScratchBlocks.ProcedureUtils.updateArgumentReporterNames_,
   };
-  
-  ScratchBlocks.Blocks['procedures_call_reporter'] = {
+
+  ScratchBlocks.Blocks["procedures_call_reporter"] = {
     /**
      * Block for calling a procedure with no return value.
      * @this ScratchBlocks.Block
      */
-    init: function() {
+    init: function () {
       this.jsonInit({
-        "extensions": ["colours_more", "output_string", "output_number", "procedure_call_contextmenu"]
+        extensions: ["colours_more", "output_string", "output_number", "procedure_call_contextmenu"],
       });
-      this.procCode_ = '';
+      this.procCode_ = "";
       this.argumentIds_ = [];
       this.warp_ = false;
     },
@@ -99,28 +99,28 @@ export default async function ({ addon, msg, console }) {
     deleteShadows_: ScratchBlocks.ScratchBlocks.ProcedureUtils.deleteShadows_,
     createAllInputs_: ScratchBlocks.ScratchBlocks.ProcedureUtils.createAllInputs_,
     updateDisplay_: ScratchBlocks.ScratchBlocks.ProcedureUtils.updateDisplay_,
-  
+
     // Exist on all three blocks, but have different implementations.
     mutationToDom: ScratchBlocks.ScratchBlocks.ProcedureUtils.callerMutationToDom,
     domToMutation: ScratchBlocks.ScratchBlocks.ProcedureUtils.callerDomToMutation,
     populateArgument_: ScratchBlocks.ScratchBlocks.ProcedureUtils.populateArgumentOnCaller_,
     addProcedureLabel_: ScratchBlocks.ScratchBlocks.ProcedureUtils.addLabelField_,
-  
+
     // Only exists on the external caller.
     attachShadow_: ScratchBlocks.ScratchBlocks.ProcedureUtils.attachShadow_,
-    buildShadowDom_: ScratchBlocks.ScratchBlocks.ProcedureUtils.buildShadowDom_
+    buildShadowDom_: ScratchBlocks.ScratchBlocks.ProcedureUtils.buildShadowDom_,
   };
-  
-  ScratchBlocks.Blocks['procedures_call_boolean'] = {
+
+  ScratchBlocks.Blocks["procedures_call_boolean"] = {
     /**
      * Block for calling a procedure with no return value.
      * @this ScratchBlocks.Block
      */
-    init: function() {
+    init: function () {
       this.jsonInit({
-        "extensions": ["colours_more", "output_boolean", "procedure_call_contextmenu"]
+        extensions: ["colours_more", "output_boolean", "procedure_call_contextmenu"],
       });
-      this.procCode_ = '';
+      this.procCode_ = "";
       this.argumentIds_ = [];
       this.warp_ = false;
     },
@@ -131,16 +131,16 @@ export default async function ({ addon, msg, console }) {
     deleteShadows_: ScratchBlocks.ScratchBlocks.ProcedureUtils.deleteShadows_,
     createAllInputs_: ScratchBlocks.ScratchBlocks.ProcedureUtils.createAllInputs_,
     updateDisplay_: ScratchBlocks.ScratchBlocks.ProcedureUtils.updateDisplay_,
-  
+
     // Exist on all three blocks, but have different implementations.
     mutationToDom: ScratchBlocks.ScratchBlocks.ProcedureUtils.callerMutationToDom,
     domToMutation: ScratchBlocks.ScratchBlocks.ProcedureUtils.callerDomToMutation,
     populateArgument_: ScratchBlocks.ScratchBlocks.ProcedureUtils.populateArgumentOnCaller_,
     addProcedureLabel_: ScratchBlocks.ScratchBlocks.ProcedureUtils.addLabelField_,
-  
+
     // Only exists on the external caller.
     attachShadow_: ScratchBlocks.ScratchBlocks.ProcedureUtils.attachShadow_,
-    buildShadowDom_: ScratchBlocks.ScratchBlocks.ProcedureUtils.buildShadowDom_
+    buildShadowDom_: ScratchBlocks.ScratchBlocks.ProcedureUtils.buildShadowDom_,
   };
 
   ScratchBlocks.Blocks["procedures_definition_reporter"] = {
@@ -168,13 +168,13 @@ export default async function ({ addon, msg, console }) {
 
   const xmlParser = new DOMParser();
   const xmlSerializer = new XMLSerializer();
-  
+
   const reduxStateListener = async (e) => {
     if (e.detail.action.type === UPDATE_TOOLBOX_ACTION && !e.detail.action.saExtraBlocks) {
       const toolboxXML = xmlParser.parseFromString(e.detail.action.toolboxXML, "text/xml");
       blocks = vm.editingTarget.blocks;
-      const myBlocksCat = toolboxXML.querySelector("category[custom=\"PROCEDURE\"]"); // todo: use correct query selector
-      for (const block of blocks._scripts.filter(block => block.opcode === "procedures_definition_reporter")) {
+      const myBlocksCat = toolboxXML.querySelector('category[custom="PROCEDURE"]'); // todo: use correct query selector
+      for (const block of blocks._scripts.filter((block) => block.opcode === "procedures_definition_reporter")) {
         const blockEl = Object.assign(toolboxXML.createElement("block"), {
           id: ScratchBlocks.UUid(), // todo: check if this is actually a thing!!!!!
         });
@@ -186,7 +186,7 @@ export default async function ({ addon, msg, console }) {
       }
     }
   };
-  
+
   let hasSetUpInputButtons = false;
   while (true) {
     console.log(addon.tab.redux.state?.scratchGui?.toolbox?.toolboxXML);
@@ -391,7 +391,7 @@ export default async function ({ addon, msg, console }) {
     }
 
     const oldReduxCb = addon.tab.redux.state.scratchGui.customProcedures.callback;
-    
+
     /*console.log(oldReduxCb.toString());
     addon.tab.redux.dispatch({
       type: "scratch-gui/custom-procedures/SET_CALLBACK",

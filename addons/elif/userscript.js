@@ -2,51 +2,51 @@ export default async function ({ addon, msg, global, console }) {
   const ScratchBlocks = await addon.tab.traps.getBlockly();
   const vm = addon.tab.traps.vm;
   ScratchBlocks.Blocks["control_if_elif_else"] = {
-    init: function() {
+    init: function () {
       this.jsonInit({
-        "type": "control_if_else",
-        "message0": ScratchBlocks.Msg.CONTROL_IF,
-        "message1": "%1",
-        "message2": "else if %1 then",
-        "message3": "%1",
-        "message4": ScratchBlocks.Msg.CONTROL_ELSE,
-        "message5": "%1",
-        "args0": [
+        type: "control_if_else",
+        message0: ScratchBlocks.Msg.CONTROL_IF,
+        message1: "%1",
+        message2: "else if %1 then",
+        message3: "%1",
+        message4: ScratchBlocks.Msg.CONTROL_ELSE,
+        message5: "%1",
+        args0: [
           {
-            "type": "input_value",
-            "name": "CONDITION",
-            "check": "Boolean"
-          }
+            type: "input_value",
+            name: "CONDITION",
+            check: "Boolean",
+          },
         ],
-        "args1": [
+        args1: [
           {
-            "type": "input_statement",
-            "name": "SUBSTACK"
-          }
+            type: "input_statement",
+            name: "SUBSTACK",
+          },
         ],
-        "args2": [
+        args2: [
           {
-            "type": "input_value",
-            "name": "CONDITION2",
-            "check": "Boolean"
-          }
+            type: "input_value",
+            name: "CONDITION2",
+            check: "Boolean",
+          },
         ],
-        "args3": [
+        args3: [
           {
-            "type": "input_statement",
-            "name": "SUBSTACK2"
-          }
+            type: "input_statement",
+            name: "SUBSTACK2",
+          },
         ],
-        "args5": [
+        args5: [
           {
-            "type": "input_statement",
-            "name": "SUBSTACK3"
-          }
+            type: "input_statement",
+            name: "SUBSTACK3",
+          },
         ],
-        "category": ScratchBlocks.Categories.control,
-        "extensions": ["colours_control", "shape_statement"]
+        category: ScratchBlocks.Categories.control,
+        extensions: ["colours_control", "shape_statement"],
       });
-    }
+    },
   };
   if (!addon.tab.redux.state) return console.warn("Redux is not available!");
   addon.tab.redux.initialize();
@@ -104,11 +104,7 @@ export default async function ({ addon, msg, global, console }) {
         }
       }
 
-      insertAfter(
-        "control_if_else",
-        false,
-        { type: "control_if_elif_else" },
-      );
+      insertAfter("control_if_else", false, { type: "control_if_elif_else" });
 
       addon.tab.redux.dispatch({
         type: UPDATE_TOOLBOX_ACTION,
@@ -123,24 +119,25 @@ export default async function ({ addon, msg, global, console }) {
       vm.emitWorkspaceUpdate();
     }
   };
-  
+
   const blockRender = ScratchBlocks.BlockSvg.prototype.render;
   ScratchBlocks.BlockSvg.prototype.render = function (...args) {
     if (this.type === "control_if_elif_else") {
-      console.log('elif', this)
+      console.log("elif", this);
     }
-    if (!addon.self.disabled
-      && this.type === "control_if_else"
-      && this.inputList[4].connection?.targetConnection?.sourceBlock_?.type === "control_if_else"
-      && !this.inputList[4].connection?.targetConnection?.sourceBlock_?.nextConnectiom?.targetConnection
+    if (
+      !addon.self.disabled &&
+      this.type === "control_if_else" &&
+      this.inputList[4].connection?.targetConnection?.sourceBlock_?.type === "control_if_else" &&
+      !this.inputList[4].connection?.targetConnection?.sourceBlock_?.nextConnectiom?.targetConnection
     ) {
       const fixupCon = (con, target) => {
         con.sourceBlock_ = target;
         if (con.targetConnection) con.targetConnection.sourceBlock_.parentBlock_ = target;
-      }
-      console.log(this)
+      };
+      console.log(this);
       let input4 = this.inputList[4];
-      let input3 = this.inputList[3]
+      let input3 = this.inputList[3];
       let nextIfElse = input4.connection?.targetConnection?.sourceBlock_;
       this.type = "control_if_elif_else";
       // inputs were: if <>, then, {}, else,       {}
@@ -158,7 +155,7 @@ export default async function ({ addon, msg, global, console }) {
       const stack3con = nextIfElse.inputList[2].connection;
       fixupCon(stack3con, this);
       this.inputList.push(new ScratchBlocks.Input(3, "SUBSTACK3", this, stack3con));
-      console.log(this)
+      console.log(this);
       blockRender.call(this, ...args);
       // restore inputs to original state
       this.inputList.splice(5, 3);
@@ -174,16 +171,20 @@ export default async function ({ addon, msg, global, console }) {
     }
     return blockRender.call(this, ...args);
   };
-  
+
   const transformTargetToSa = (target) => {
-    return
+    return;
     if (target.saElifTransformed) return;
     const blocks = target.blocks;
-    console.log(blocks)
+    console.log(blocks);
     for (const block of Object.values(blocks._blocks)) {
       let ifElse2;
-      if (block.opcode === "control_if_else" && (ifElse2 = blocks._blocks[block.inputs["SUBSTACK2"].block])?.opcode === "control_if_else" && ifElse2.next === null) {
-        console.log('if elif else')
+      if (
+        block.opcode === "control_if_else" &&
+        (ifElse2 = blocks._blocks[block.inputs["SUBSTACK2"].block])?.opcode === "control_if_else" &&
+        ifElse2.next === null
+      ) {
+        console.log("if elif else");
         let substack2 = Object.assign({}, blocks._blocks[ifElse2.id].inputs["SUBSTACK"]);
         let substack3 = Object.assign({}, blocks._blocks[ifElse2.id].inputs["SUBSTACK2"]);
         ifElse2.inputs["SUBSTACK"] = {};
@@ -206,20 +207,20 @@ export default async function ({ addon, msg, global, console }) {
   };
 
   onEnabled();
-  
+
   await new Promise((resolve) => {
     if (addon.tab.traps.vm.editingTarget) return resolve();
     addon.tab.traps.vm.runtime.once("PROJECT_LOADED", resolve);
   });
   if (vm.editingTarget) {
-      transformTargetToSa(vm.editingTarget);
-    }
-  
+    transformTargetToSa(vm.editingTarget);
+  }
+
   const oldSetEditingTarget = vm.runtime.constructor.prototype.oldSetEditingTarget;
   vm.runtime.constructor.prototype.oldSetEditingTarget = function (target) {
     transformTargetToSa(target);
     oldSetEditingTarget.call(this, target);
-  }
+  };
 
   //addon.settings.addEventListener("change", updateToolbox);
 
@@ -229,4 +230,4 @@ export default async function ({ addon, msg, global, console }) {
   });
 
   addon.self.addEventListener("reenabled", onEnabled);
-};
+}

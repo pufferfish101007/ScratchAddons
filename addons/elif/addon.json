@@ -7,16 +7,11 @@
       "name": "pufferfish101007"
     }
   ],
-  "tags": [
-    "editor",
-    "beta"
-  ],
+  "tags": ["editor", "beta"],
   "userscripts": [
     {
       "url": "userscript.js",
-      "matches": [
-        "projects"
-      ]
+      "matches": ["projects"]
     }
   ],
   "enabledByDefault": true

@@ -11,7 +11,10 @@ function immediatelyRunFunctionInMainWorld(fn) {
   div.remove();
 }
 
-const isLocal = location.origin === "https://scratchfoundation.github.io" || location.origin === "https://gonfunko.github.io" || ["8601", "8602"].includes(location.port);
+const isLocal =
+  location.origin === "https://scratchfoundation.github.io" ||
+  location.origin === "https://gonfunko.github.io" ||
+  ["8601", "8602"].includes(location.port);
 if ((!(document.documentElement instanceof SVGElement) && location.pathname.split("/")[1] === "projects") || isLocal) {
   immediatelyRunFunctionInMainWorld(() => {
     const oldBind = Function.prototype.bind;

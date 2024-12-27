@@ -57,7 +57,7 @@ export default async function ({ addon, console, msg }) {
 
   const oldDropDownDivShow = Blockly.DropDownDiv.show;
   Blockly.DropDownDiv.show = function (...args) {
-    console.log('show')
+    console.log("show");
     blocklyDropdownMenu = document.querySelector(".blocklyDropdownMenu");
     if (!blocklyDropdownMenu) {
       return oldDropDownDivShow.call(this, ...args);

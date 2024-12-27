@@ -9,7 +9,9 @@ import * as modal from "./modal.js";
 const DATA_PNG = "data:image/png;base64,";
 
 const isScratchGui =
-  location.origin === "https://scratchfoundation.github.io" || location.origin === "https://gonfunko.github.io" || ["8601", "8602"].includes(location.port);
+  location.origin === "https://scratchfoundation.github.io" ||
+  location.origin === "https://gonfunko.github.io" ||
+  ["8601", "8602"].includes(location.port);
 
 const contextMenuCallbacks = [];
 const CONTEXT_MENU_ORDER = ["editor-devtools", "block-switching", "blocks2image", "swap-local-global"];
@@ -752,7 +754,7 @@ export default class Tab extends Listenable {
     this.traps.getBlockly().then((ScratchBlocks) => {
       const oldShow = ScratchBlocks.ContextMenu.show;
       ScratchBlocks.ContextMenu.show = function (event, items, rtl) {
-        console.log('context menu!')
+        console.log("context menu!");
         const gesture = ScratchBlocks.mainWorkspace.currentGesture_;
         const block = gesture.targetBlock_;
 

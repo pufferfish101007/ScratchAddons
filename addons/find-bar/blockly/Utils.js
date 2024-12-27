@@ -128,7 +128,6 @@ export default class Utils {
 }
 
 class NavigationHistory {
-
   constructor(addon) {
     this.addon = addon;
     this.addon.tab.traps.getBlockly().then((blockly) => {

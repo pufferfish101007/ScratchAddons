@@ -16,7 +16,7 @@ export default async function ({ addon, msg, console }) {
       return !addon.self.disabled;
     },
   });
-  console.log(Blockly.Gesture)
+  console.log(Blockly.Gesture);
 
   const _doBlockClick = Blockly.Gesture.prototype.doBlockClick;
   Blockly.Gesture.prototype.doBlockClick = function () {

@@ -412,7 +412,7 @@ export class BlockTypeInfo {
         const options = field.getOptions();
         addInput(new BlockInputEnum(options, inputIdx, fieldIdx, fieldIdx === -1));
       } else if (field instanceof Blockly.FieldImage) {
-        switch (field.src_.split("/").pop()) {
+        switch (field.value_.split("/").pop()) {
           case "green-flag.svg":
             parts.push(locale("/_general/blocks/green-flag"));
             break;

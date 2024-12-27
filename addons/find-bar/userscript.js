@@ -183,7 +183,7 @@ export default async function ({ addon, msg, console }) {
       // https://github.com/scratchfoundation/scratch-blocks/blob/1421093/core/blockly.js#L185
       // KeyboardShortcutsHOC.handleKeyPress:
       // https://github.com/scratchfoundation/scratch-paint/blob/8119055/src/hocs/keyboard-shortcuts-hoc.jsx#L29
-      if (!Blockly.utils.isTargetInput(e) && addon.tab.redux.state?.scratchPaint.textEditTarget === null) {
+      if (!Blockly.browserEvents.isTargetInput(e) && addon.tab.redux.state?.scratchPaint.textEditTarget === null) {
         if (
           (ctrlKey || e.altKey) &&
           (e.keyCode === 90 || e.key === "z" || (e.shiftKey && e.key.toLowerCase() === "z"))
@@ -271,7 +271,7 @@ export default async function ({ addon, msg, console }) {
         let desc;
         for (const fieldRow of fields.fieldRow) {
           desc = desc ? desc + " " : "";
-          if (fieldRow instanceof Blockly.FieldImage && fieldRow.src_.endsWith("green-flag.svg")) {
+          if (fieldRow instanceof Blockly.FieldImage && fieldRow.value_.endsWith("green-flag.svg")) {
             desc += msg("/_general/blocks/green-flag");
           } else {
             desc += fieldRow.getText();

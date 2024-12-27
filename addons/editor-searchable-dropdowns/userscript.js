@@ -1,5 +1,6 @@
 export default async function ({ addon, console, msg }) {
   const Blockly = await addon.tab.traps.getBlockly();
+  console.log(Blockly);
   const vm = addon.tab.traps.vm;
 
   const SCRATCH_ITEMS_TO_HIDE = [
@@ -51,8 +52,12 @@ export default async function ({ addon, console, msg }) {
   let currentDropdownOptions = [];
   let resultOfLastGetOptions = [];
 
+  Blockly.DropDownDiv.HELLO = "HELLO";
+  console.log(Blockly.DropDownDiv);
+
   const oldDropDownDivShow = Blockly.DropDownDiv.show;
   Blockly.DropDownDiv.show = function (...args) {
+    console.log('show')
     blocklyDropdownMenu = document.querySelector(".blocklyDropdownMenu");
     if (!blocklyDropdownMenu) {
       return oldDropDownDivShow.call(this, ...args);

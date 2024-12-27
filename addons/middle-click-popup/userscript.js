@@ -443,10 +443,10 @@ export default async function ({ addon, msg, console }) {
   });
 
   // Open on mouse wheel button
-  const _doWorkspaceClick_ = Blockly.Gesture.prototype.doWorkspaceClick_;
-  Blockly.Gesture.prototype.doWorkspaceClick_ = function () {
-    if (this.mostRecentEvent_.button === 1 || this.mostRecentEvent_.shiftKey) openPopup();
-    mousePosition = { x: this.mostRecentEvent_.clientX, y: this.mostRecentEvent_.clientY };
+  const _doWorkspaceClick_ = Blockly.Gesture.prototype.doWorkspaceClick;
+  Blockly.Gesture.prototype.doWorkspaceClick = function () {
+    if (this.mostRecentEvent.button === 1 || this.mostRecentEvent.shiftKey) openPopup();
+    mousePosition = { x: this.mostRecentEvent.clientX, y: this.mostRecentEvent.clientY };
     _doWorkspaceClick_.call(this);
   };
 

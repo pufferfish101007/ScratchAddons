@@ -16,13 +16,14 @@ export default async function ({ addon, msg, console }) {
       return !addon.self.disabled;
     },
   });
+  console.log(Blockly.Gesture)
 
-  const _doBlockClick_ = Blockly.Gesture.prototype.doBlockClick_;
-  Blockly.Gesture.prototype.doBlockClick_ = function () {
-    if (!addon.self.disabled && (this.mostRecentEvent_.button === 1 || this.mostRecentEvent_.shiftKey)) {
+  const _doBlockClick = Blockly.Gesture.prototype.doBlockClick;
+  Blockly.Gesture.prototype.doBlockClick = function () {
+    if (!addon.self.disabled && (this.mostRecentEvent.button === 1 || this.mostRecentEvent.shiftKey)) {
       // Wheel button...
       // Intercept clicks to allow jump to...?
-      let block = this.startBlock_;
+      let block = this.startBlock;
       for (; block; block = block.getSurroundParent()) {
         if (block.type === "procedures_call") {
           let findProcCode = block.getProcCode();
@@ -43,6 +44,6 @@ export default async function ({ addon, msg, console }) {
       }
     }
 
-    _doBlockClick_.call(this);
+    _doBlockClick.call(this);
   };
 }

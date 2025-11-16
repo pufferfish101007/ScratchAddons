@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 scratchAddons.localEvents.addEventListener("addonDynamicEnable", ({ detail }) => {
-  const { addonId, manifest, partialDynamicEnableBy } = detail;
+  const { addonId, manifest, partialDynamicEnableBy, newInstance } = detail;
   chrome.tabs.query({}, (tabs) =>
     tabs.forEach((tab) => {
       if (tab.url) {
@@ -53,6 +53,7 @@ scratchAddons.localEvents.addEventListener("addonDynamicEnable", ({ detail }) =>
                       dynamicEnable: Boolean(manifest.dynamicEnable),
                       dynamicDisable: Boolean(manifest.dynamicDisable),
                       partial: !!partialDynamicEnableBy,
+                      newInstance,
                     },
                   },
                   { frameId: 0 }
@@ -66,7 +67,8 @@ scratchAddons.localEvents.addEventListener("addonDynamicEnable", ({ detail }) =>
   );
 });
 scratchAddons.localEvents.addEventListener("addonDynamicDisable", ({ detail }) => {
-  const { addonId, manifest, partialDynamicDisableBy } = detail;
+  const { addonId, manifest, partialDynamicDisableBy, noRemove } = detail;
+  console.log("noRmoeve:", noRemove);
   let partialDynamicDisabledStyles;
   if (partialDynamicDisableBy) {
     partialDynamicDisabledStyles = manifest.userstyles
@@ -82,6 +84,7 @@ scratchAddons.localEvents.addEventListener("addonDynamicDisable", ({ detail }) =
             dynamicAddonDisable: {
               addonId,
               partialDynamicDisabledStyles,
+              noRemove
             },
           },
           { frameId: 0 },

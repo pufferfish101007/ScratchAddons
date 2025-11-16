@@ -1,4 +1,4 @@
-import changeAddonState from "./imports/change-addon-state.js";
+import { default as changeAddonState, reloadUserscripts } from "./imports/change-addon-state.js";
 import minifySettings from "../libraries/common/minify-settings.js";
 import { updateBadge } from "./message-cache.js";
 import { onReady } from "./imports/on-ready.js";
@@ -20,6 +20,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return onReady(() => {
       const { addonId, newState } = request.changeEnabledState;
       changeAddonState(addonId, newState);
+    });
+  } else if (request.reloadUserscripts) {
+    return onReady(() => {
+      const { addonId } = request.reloadUserscripts;
+      reloadUserscripts(addonId);
     });
   } else if (request.changeAddonSettings) {
     return onReady(() => {

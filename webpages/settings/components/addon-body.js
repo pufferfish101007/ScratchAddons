@@ -123,6 +123,22 @@ export default async function ({ template }) {
           console.log(`Loaded default values for ${this.addon._addonId}`);
         }
       },
+      reloadAddonRequest(event) {
+        const newState = !this.addon._enabled;
+        this.addon._wasEverEnabled = this.addon._enabled || newState;
+        this.addon._enabled = newState;
+        // Do not extend when enabling in popup mode, unless addon has warnings
+        // Do not collapse when disabling in related addons view
+        this.expanded = this.$root.relatedAddonsOpen
+          ? this.expanded
+          : isIframe && !this.expanded && (this.addon.info || []).every((item) => item.type !== "warning")
+            ? false
+            : event.shiftKey
+              ? false // Prevent expanding when shift-clicked (#1484)
+              : newState;
+        chrome.runtime.sendMessage({ changeEnabledState: { addonId: this.addon._addonId, newState: false } });
+        chrome.runtime.sendMessage({ reloadUserscripts: { addonId: this.addon._addonId } });
+      },
       toggleAddonRequest(event) {
         const toggle = () => {
           const newState = !this.addon._enabled;

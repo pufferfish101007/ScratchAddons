@@ -11,6 +11,7 @@
           <div class="addon-name tooltip">
             <span>{{ addon.name }}</span>
             <span v-if="devMode" class="tooltiptext tooltiptexttop">{{ addon._addonId }}</span>
+            <button v-if="devMode && addon._enabled" @click="reloadAddonRequest">Reload userscripts</button>
           </div><!-- no space --><addon-tag v-for="tag of addon.tags" :tag="tag"></addon-tag>
         </div>
       </div>

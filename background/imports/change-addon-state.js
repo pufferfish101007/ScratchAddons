@@ -65,3 +65,19 @@ export default (addonId, newState) => {
     }
   }
 };
+
+/**
+ * Reloads userscript. For development use only.
+ * @param {string} addonId - addon ID.
+ */
+export const reloadUserscripts = (addonId) => {
+  const { manifest } = scratchAddons.manifests.find((addon) => addon.addonId === addonId);
+  const { dynamicEnable, dynamicDisable } = manifest;
+  if (!(dynamicEnable && dynamicDisable)) {
+    console.log("Couldn't reload userscripts as addon doesn't support dynamic enable/disable");
+    return;
+  }
+
+  new CustomEvent("addonDynamicDisable", { detail: { addonId, manifest, noRemove: true } });
+  new CustomEvent("addonDynamicEnable", { detail: { addonId, manifest, newInstance: true } });
+};

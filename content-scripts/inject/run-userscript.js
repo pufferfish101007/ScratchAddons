@@ -1,12 +1,12 @@
 import Addon from "../../addon-api/content-script/Addon.js";
 
-export default async function runAddonUserscripts({ addonId, scripts, enabledLate = false }) {
+export default async function runAddonUserscripts({ addonId, scripts, enabledLate = false, newInstance = false }) {
   const addonObj = new Addon({ id: addonId, enabledLate });
   if (window.__addon === undefined) window.__addon = addonObj;
   addonObj.auth._update(scratchAddons.session);
   for (const scriptInfo of scripts) {
     const { url: scriptPath, runAtComplete } = scriptInfo;
-    const scriptUrl = `${new URL(import.meta.url).origin}/addons/${addonId}/${scriptPath}`;
+    const scriptUrl = `${new URL(import.meta.url).origin}/addons/${addonId}/${scriptPath}` + (newInstance ? `?q=${Date.now()}` : "");
     const loadUserscript = async () => {
       const [module] = await Promise.all([
         import(scriptUrl),

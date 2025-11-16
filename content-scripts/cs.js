@@ -387,6 +387,7 @@ async function onInfoAvailable({ globalState: globalStateMsg, addonsWithUserscri
         dynamicEnable,
         dynamicDisable,
         partial,
+        newInstance,
       } = request.dynamicAddonEnabled;
       disabledDynamicAddons.delete(addonId);
       addStyle({ styles: userstyles, addonId, injectAsStyleElt, index });
@@ -401,7 +402,7 @@ async function onInfoAvailable({ globalState: globalStateMsg, addonsWithUserscri
         }
       } else {
         // Non-partial: the whole addon was (re-)enabled.
-        if (everLoadedUserscriptAddons.has(addonId)) {
+        if (everLoadedUserscriptAddons.has(addonId) && !newInstance) {
           if (!dynamicDisable) return;
           // Addon was reenabled
           document.querySelector(`[data-sa-hide-disabled-style=${addonId}]`).remove();
@@ -412,18 +413,22 @@ async function onInfoAvailable({ globalState: globalStateMsg, addonsWithUserscri
 
           // If the the module wasn't loaded yet, don't run these scripts as they will run later anyway.
           if (_page_) {
-            _page_.runAddonUserscripts({ addonId, scripts, enabledLate: true });
+            _page_.runAddonUserscripts({ addonId, scripts, enabledLate: true, newInstance });
             everLoadedUserscriptAddons.add(addonId);
           }
         }
 
-        addonsWithUserscripts.push({ addonId, scripts });
-        addonsWithUserstyles.push({ styles: userstyles, cssVariables, addonId, injectAsStyleElt, index });
+        if (!newInstance) {
+          addonsWithUserscripts.push({ addonId, scripts });
+          addonsWithUserstyles.push({ styles: userstyles, cssVariables, addonId, injectAsStyleElt, index });
+        }
       }
       setCssVariables(globalState.addonSettings, addonsWithUserstyles);
     } else if (request.dynamicAddonDisable) {
       // Note: partialDynamicDisabledStyles includes ones that are disabled currently, too!
-      const { addonId, partialDynamicDisabledStyles } = request.dynamicAddonDisable;
+      const { addonId, partialDynamicDisabledStyles, noRemove } = request.dynamicAddonDisable;
+      console.log(request)
+      console.log("noRemove: ", noRemove)
       // This may run twice if the style-only addon was first "partially"
       // (but in fact entirely) disabled, and it was then toggled off.
       // Early return in this situation.
@@ -451,14 +456,18 @@ async function onInfoAvailable({ globalState: globalStateMsg, addonsWithUserscri
         } else {
           removeAddonStyles(addonId);
         }
-        disabledDynamicAddons.add(addonId);
+        if (!noRemove) {
+          disabledDynamicAddons.add(addonId);
+        }
         const style = document.createElement("style");
         style.dataset.saHideDisabledStyle = addonId;
         style.textContent = `[data-sa-hide-disabled=${addonId}] { display: none !important; }`;
         document.body.appendChild(style);
         _page_.fireEvent({ name: "disabled", addonId, target: "self" });
       } else {
-        everLoadedUserscriptAddons.delete(addonId);
+        if (!noRemove) {
+          everLoadedUserscriptAddons.delete(addonId);
+        }
       }
       if (scriptIndex !== -1) addonsWithUserscripts.splice(scriptIndex, 1);
       if (styleIndex !== -1) addonsWithUserstyles.splice(styleIndex, 1);

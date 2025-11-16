@@ -84,7 +84,7 @@ scratchAddons.localEvents.addEventListener("addonDynamicDisable", ({ detail }) =
             dynamicAddonDisable: {
               addonId,
               partialDynamicDisabledStyles,
-              noRemove
+              noRemove,
             },
           },
           { frameId: 0 },

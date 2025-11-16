@@ -6,7 +6,8 @@ export default async function runAddonUserscripts({ addonId, scripts, enabledLat
   addonObj.auth._update(scratchAddons.session);
   for (const scriptInfo of scripts) {
     const { url: scriptPath, runAtComplete } = scriptInfo;
-    const scriptUrl = `${new URL(import.meta.url).origin}/addons/${addonId}/${scriptPath}` + (newInstance ? `?q=${Date.now()}` : "");
+    const scriptUrl =
+      `${new URL(import.meta.url).origin}/addons/${addonId}/${scriptPath}` + (newInstance ? `?q=${Date.now()}` : "");
     const loadUserscript = async () => {
       const [module] = await Promise.all([
         import(scriptUrl),

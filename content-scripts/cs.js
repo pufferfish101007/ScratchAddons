@@ -427,8 +427,8 @@ async function onInfoAvailable({ globalState: globalStateMsg, addonsWithUserscri
     } else if (request.dynamicAddonDisable) {
       // Note: partialDynamicDisabledStyles includes ones that are disabled currently, too!
       const { addonId, partialDynamicDisabledStyles, noRemove } = request.dynamicAddonDisable;
-      console.log(request)
-      console.log("noRemove: ", noRemove)
+      console.log(request);
+      console.log("noRemove: ", noRemove);
       // This may run twice if the style-only addon was first "partially"
       // (but in fact entirely) disabled, and it was then toggled off.
       // Early return in this situation.
